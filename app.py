@@ -279,55 +279,70 @@ if keyword:
                     </table>
                     """, unsafe_allow_html=True)
 
-                    # ── Detail + Histori per supplier ────────────────
-                    st.markdown("<br><b style='color:#AAA;'>📋 Detail Histori Per Supplier:</b>",
+                    # ── Detail + Histori per supplier (collapsible) ──────
+                    st.markdown("<br><b style='color:#AAA;'>📋 Klik Supplier untuk Lihat Detail & Histori:</b>",
                                 unsafe_allow_html=True)
 
                     for sup in suppliers:
-                        df_s = df_sub[df_sub['nama_subcon'] == sup]
+                        df_s  = df_sub[df_sub['nama_subcon'] == sup]
                         reg   = df_s[df_s['tipe_stok'].str.lower().str.contains('regular', na=False)]['stok'].sum()
                         klaim = df_s[df_s['tipe_stok'].str.lower().str.contains('klaim|claim', na=False)]['stok'].sum()
+                        total = reg + klaim
                         pno_s  = df_s.iloc[0]['part_no']
                         nama_s = df_s.iloc[0]['nama_part']
 
-                        st.markdown(f"""
-                        <div style="background:#111;border:1px solid #333;padding:12px;
-                                    border-radius:6px;margin-top:8px;">
-                          <b style="color:#FFF;">📍 {sup}</b><br>
-                          <span style="color:#AAA;font-size:12px;">
-                            Part No: <span style="color:#FFCC00;">{pno_s}</span>
-                            &nbsp;|&nbsp; {nama_s}
-                          </span><br><br>
-                          <span style="color:#00D26A;font-weight:bold;">● Regular</span>
-                          : <b style="color:#00D26A;font-size:15px;">{reg:,.0f} Pcs</b>
-                          &nbsp;&nbsp;&nbsp;
-                          <span style="color:#FF4B4B;font-weight:bold;">● Klaim</span>
-                          : <b style="color:#FF4B4B;font-size:15px;">{klaim:,.0f} Pcs</b>
-                        </div>""", unsafe_allow_html=True)
+                        label_reg   = f"Regular: {reg:,.0f} Pcs"
+                        label_klaim = f"Klaim: {klaim:,.0f} Pcs"
+                        label_total = f"Total: {total:,.0f} Pcs"
 
-                        df_hist = pd.read_sql_query("""
-                            SELECT jenis_transaksi, tanggal, qty
-                            FROM histori_subcon
-                            WHERE UPPER(part_no)=? AND nama_subcon=?
-                            ORDER BY tanggal ASC
-                        """, conn, params=(part_no, sup))
-
-                        if not df_hist.empty:
-                            hist_rows = "".join(
-                                f"<tr><td>{h['jenis_transaksi']}</td>"
-                                f"<td>{h['tanggal']}</td>"
-                                f"<td style='color:#00D26A;font-weight:bold;'>"
-                                f"{h['qty']:,.0f}</td></tr>"
-                                for _, h in df_hist.iterrows())
+                        with st.expander(f"📍 {sup}   |   {label_reg}   |   {label_klaim}   |   {label_total}"):
                             st.markdown(f"""
-                            <table class="hist-table">
-                              <thead><tr>
-                                <th>Aktivitas</th><th>Tanggal / Hari</th><th>Qty (Pcs)</th>
-                              </tr></thead>
-                              <tbody>{hist_rows}</tbody>
-                            </table>""", unsafe_allow_html=True)
-                        else:
-                            st.caption("Tidak ada histori mutasi untuk supplier ini.")
+                            <div style="background:#0d0d0d;border:1px solid #2a2a2a;padding:12px;border-radius:6px;margin-bottom:10px;">
+                              <span style="color:#AAA;font-size:12px;">
+                                Part No Subcon: <span style="color:#FFCC00;">{pno_s}</span>
+                                &nbsp;|&nbsp; {nama_s}
+                              </span><br><br>
+                              <span style="color:#00D26A;font-weight:bold;font-size:14px;">● Stok Regular : {reg:,.0f} Pcs</span>
+                              &nbsp;&nbsp;&nbsp;
+                              <span style="color:#FF4B4B;font-weight:bold;font-size:14px;">● Stok Klaim : {klaim:,.0f} Pcs</span>
+                            </div>""", unsafe_allow_html=True)
+
+                            df_hist = pd.read_sql_query("""
+                                SELECT jenis_transaksi, tanggal, qty
+                                FROM histori_subcon
+                                WHERE UPPER(part_no)=? AND nama_subcon=?
+                                ORDER BY tanggal ASC
+                            """, conn, params=(part_no, sup))
+
+                            if not df_hist.empty:
+                                hist_rows = ""
+                                for _, h in df_hist.iterrows():
+                                    # warna baris: hijau = masuk/terima, merah = keluar/kirim
+                                    jenis = str(h['jenis_transaksi'])
+                                    if 'MASUK' in jenis.upper() or 'TERIMA' in jenis.upper():
+                                        warna = "#00D26A"
+                                        ikon  = "⬇️"
+                                    else:
+                                        warna = "#FF6B6B"
+                                        ikon  = "⬆️"
+                                    hist_rows += (
+                                        f"<tr>"
+                                        f"<td>{ikon} {jenis}</td>"
+                                        f"<td>{h['tanggal']}</td>"
+                                        f"<td style='color:{warna};font-weight:bold;'>{h['qty']:,.0f}</td>"
+                                        f"</tr>"
+                                    )
+                                st.markdown(f"""
+                                <table class="hist-table">
+                                  <thead><tr>
+                                    <th>Aktivitas</th>
+                                    <th>Tanggal / Hari</th>
+                                    <th>Qty (Pcs)</th>
+                                  </tr></thead>
+                                  <tbody>{hist_rows}</tbody>
+                                </table>""", unsafe_allow_html=True)
+                            else:
+                                st.caption("Tidak ada histori mutasi untuk supplier ini.")
                 else:
                     st.info("Item part ini murni berada di WH internal, tidak tersebar di supplier subcon.")
 else:
