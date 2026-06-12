@@ -36,314 +36,543 @@ def to_num(val):
     return float(v) if pd.notna(v) else 0.0
 
 # ─────────────────────────────────────────────
-# 2. UI CONFIG
+# 2. UI CONFIG - RESPONSIVE
 # ─────────────────────────────────────────────
-st.set_page_config(page_title="Monitoring Gudang & Subcon", layout="wide")
+st.set_page_config(
+    page_title="Monitoring Gudang & Subcon", 
+    layout="wide",
+    initial_sidebar_state="auto"
+)
+
+# CSS Responsive untuk Mobile & Desktop
 st.markdown("""
 <style>
-.block-container{padding-top:1.2rem!important}
-.card-master{background:#1A1A1A;border-left:5px solid #FFCC00;padding:15px;border-radius:6px;margin-bottom:12px}
-.supplier-table{width:100%;border-collapse:collapse;margin-top:10px}
-.supplier-table th{background:#1a1a2e;color:#FFCC00;padding:10px 14px;border:1px solid #333;text-align:center}
-.supplier-table td{padding:9px 14px;border:1px solid #2a2a2a;color:#eee}
-.supplier-table tr:hover td{background:#1e1e1e}
-.hist-table{width:100%;border-collapse:collapse;margin-top:8px}
-.hist-table th{background:#222;color:#FFCC00;padding:8px;border:1px solid #333;text-align:center;font-size:12px}
-.hist-table td{padding:8px;border:1px solid #333;text-align:center;color:white;font-size:12px}
+    /* Global Styles */
+    .stApp {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    }
+    
+    /* Responsive Container */
+    .block-container {
+        padding: 1rem 0.8rem !important;
+        max-width: 100% !important;
+    }
+    
+    /* Card Styles */
+    .card-master {
+        background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3a 100%);
+        border-left: 5px solid #FFCC00;
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        transition: transform 0.2s;
+    }
+    
+    .card-master:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Supplier Card */
+    .supplier-card {
+        background: #0d0d15;
+        border: 1px solid #2a2a3a;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+    }
+    
+    .supplier-card:hover {
+        border-color: #FFCC00;
+        box-shadow: 0 2px 8px rgba(255,204,0,0.1);
+    }
+    
+    /* Responsive Tables - Mobile First */
+    .responsive-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.5rem 0;
+        font-size: 13px;
+    }
+    
+    .responsive-table th {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #FFCC00;
+        padding: 10px 8px;
+        border: 1px solid #333;
+        text-align: center;
+        font-weight: 600;
+        font-size: 12px;
+    }
+    
+    .responsive-table td {
+        padding: 8px 6px;
+        border: 1px solid #2a2a2a;
+        color: #eee;
+        font-size: 12px;
+    }
+    
+    /* Mobile Optimization */
+    @media (max-width: 768px) {
+        .block-container {
+            padding: 0.8rem 0.5rem !important;
+        }
+        
+        .card-master {
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .responsive-table {
+            font-size: 11px;
+        }
+        
+        .responsive-table th,
+        .responsive-table td {
+            padding: 6px 4px;
+        }
+        
+        /* Stack tables on mobile */
+        .supplier-card {
+            padding: 0.8rem;
+        }
+        
+        /* Reduce font sizes */
+        h1 {
+            font-size: 1.5rem !important;
+        }
+        
+        h2, h3 {
+            font-size: 1.2rem !important;
+        }
+        
+        /* Better touch targets */
+        button, .stButton button {
+            min-height: 44px !important;
+        }
+        
+        /* Improve input fields */
+        input, textarea {
+            font-size: 16px !important; /* Prevent zoom on focus */
+        }
+    }
+    
+    /* Desktop Optimization */
+    @media (min-width: 1200px) {
+        .block-container {
+            padding: 2rem 2rem !important;
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+        }
+        
+        .responsive-table {
+            font-size: 14px;
+        }
+        
+        .responsive-table th,
+        .responsive-table td {
+            padding: 12px 16px;
+        }
+    }
+    
+    /* Status Badges */
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: bold;
+        margin: 2px;
+    }
+    
+    .badge-success {
+        background: rgba(0,210,106,0.2);
+        color: #00D26A;
+        border: 1px solid #00D26A;
+    }
+    
+    .badge-warning {
+        background: rgba(255,75,75,0.2);
+        color: #FF6B6B;
+        border: 1px solid #FF6B6B;
+    }
+    
+    .badge-info {
+        background: rgba(255,204,0,0.2);
+        color: #FFCC00;
+        border: 1px solid #FFCC00;
+    }
+    
+    /* Search Box */
+    .search-box {
+        background: #1e1e2e;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #2a2a3a;
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #1a1a1a;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #FFCC00;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #ffdb4d;
+    }
+    
+    /* Loading Spinner */
+    .stSpinner > div {
+        border-top-color: #FFCC00 !important;
+    }
+    
+    /* Success/Warning/Info Messages */
+    .stAlert {
+        border-radius: 10px !important;
+        border-left: 4px solid #FFCC00 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🏭 MONITORING GUDANG & SUBCON LOGISTIK")
+# Title dengan responsive design
+col1, col2, col3 = st.columns([1,2,1])
+with col2:
+    st.markdown("""
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="color: #FFCC00; margin-bottom: 0.5rem;">🏭 MONITORING GUDANG</h1>
+            <h1 style="color: #FFCC00; margin-top: 0;">& SUBCON LOGISTIK</h1>
+            <p style="color: #aaa; font-size: 14px;">Real-time Inventory Tracking System</p>
+        </div>
+    """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
-# 3. SIDEBAR — UPLOAD & SYNC
+# 3. SIDEBAR — UPLOAD & SYNC (Enhanced)
 # ─────────────────────────────────────────────
-st.sidebar.header("🔄 Sinkronisasi Sistem")
-file_excel = st.sidebar.file_uploader("Upload File Excel (.xlsx):", type=["xlsx"])
+with st.sidebar:
+    st.markdown("""
+        <div style="text-align: center; margin-bottom: 1rem;">
+            <h3 style="color: #FFCC00;">🔄 SISTEM SYNC</h3>
+            <hr style="border-color: #2a2a3a;">
+        </div>
+    """, unsafe_allow_html=True)
+    
+    file_excel = st.file_uploader(
+        "📂 Upload File Excel (.xlsx):", 
+        type=["xlsx"],
+        help="Upload file Excel dengan format yang sudah ditentukan"
+    )
+    
+    if file_excel and st.button("⚡ SINKRONKAN DATA", use_container_width=True):
+        with st.spinner("🔄 Memproses data..."):
+            try:
+                xls = pd.ExcelFile(file_excel)
 
-if file_excel and st.sidebar.button("⚡ SINKRONKAN DATA SEKARANG"):
-    with st.spinner("Memproses data..."):
-        try:
-            xls = pd.ExcelFile(file_excel)
+                # ── Baca semua sheet ──
+                df_wh     = pd.read_excel(xls, sheet_name="WH Inv",        header=5)
+                df_subcon = pd.read_excel(xls, sheet_name="Subcon INV",    header=5)
+                df_masuk  = pd.read_excel(xls, sheet_name="masuk subcon",  header=4)
+                df_keluar = pd.read_excel(xls, sheet_name="keluar subcon", header=3)
 
-            # ── Baca semua sheet dengan header yang sudah terkonfirmasi ──
-            df_wh     = pd.read_excel(xls, sheet_name="WH Inv",        header=5)
-            df_subcon = pd.read_excel(xls, sheet_name="Subcon INV",    header=5)
-            df_masuk  = pd.read_excel(xls, sheet_name="masuk subcon",  header=4)
-            df_keluar = pd.read_excel(xls, sheet_name="keluar subcon", header=3)
+                for df in [df_wh, df_subcon, df_masuk, df_keluar]:
+                    df.columns = [str(c).strip() for c in df.columns]
 
-            # strip nama kolom
-            for df in [df_wh, df_subcon, df_masuk, df_keluar]:
-                df.columns = [str(c).strip() for c in df.columns]
+                inisialisasi_db()
 
-            inisialisasi_db()
+                # ══ A. WH INV ═══════════════════════════════════════════════
+                wh_count = 0
+                for _, r in df_wh.iterrows():
+                    p_no  = bersihkan(r.get('Part No.', ''))
+                    nama  = bersihkan(r.get('NAMA PART', ''))
+                    if not p_no: continue
+                    stok  = to_num(r.get('Stock Akhir', 0))
+                    cursor.execute(
+                        "INSERT INTO master_wh (part_no,nama_part,stok_wh) VALUES(?,?,?)",
+                        (p_no.upper(), nama, stok))
+                    wh_count += 1
+                st.sidebar.success(f"✅ WH: {wh_count} items")
 
-            # ══ A. WH INV ═══════════════════════════════════════════════
-            wh_count = 0
-            for _, r in df_wh.iterrows():
-                p_no  = bersihkan(r.get('Part No.', ''))
-                nama  = bersihkan(r.get('NAMA PART', ''))
-                if not p_no: continue
-                stok  = to_num(r.get('Stock Akhir', 0))
-                cursor.execute(
-                    "INSERT INTO master_wh (part_no,nama_part,stok_wh) VALUES(?,?,?)",
-                    (p_no.upper(), nama, stok))
-                wh_count += 1
-            st.sidebar.success(f"✅ WH Inv: {wh_count} baris")
+                # ══ B. SUBCON INV ════════════════════════════════════════════
+                sub_count = 0
+                for _, r in df_subcon.iterrows():
+                    p_no_sub  = bersihkan(r.get('Part No. SubCon', ''))
+                    if not p_no_sub: continue
 
-            # ══ B. SUBCON INV ════════════════════════════════════════════
-            # Kolom pasti: Subcon Name | Part No. SubCon | Part Name Subcon
-            #              Type | Stock Akhir | Terima1..Terima31 | Keluar1..Keluar31
-            sub_count = 0
-            for _, r in df_subcon.iterrows():
-                p_no_sub  = bersihkan(r.get('Part No. SubCon', ''))
-                if not p_no_sub: continue
+                    nama_part = bersihkan(r.get('Part Name Subcon', ''))
+                    sup_name  = bersihkan(r.get('Subcon Name', 'UNKNOWN'))
+                    tipe      = bersihkan(r.get('Type', 'Regular'))
+                    stok_akhir= to_num(r.get('Stock Akhir', 0))
 
-                nama_part = bersihkan(r.get('Part Name Subcon', ''))
-                sup_name  = bersihkan(r.get('Subcon Name', 'UNKNOWN'))
-                tipe      = bersihkan(r.get('Type', 'Regular'))
-                stok_akhir= to_num(r.get('Stock Akhir', 0))
+                    cursor.execute("""
+                        INSERT INTO detail_subcon
+                            (part_no, nama_part, nama_subcon, tipe_stok, jumlah_stok)
+                        VALUES (?,?,?,?,?)""",
+                        (p_no_sub.upper(), nama_part, sup_name, tipe, stok_akhir))
+                    sub_count += 1
 
-                cursor.execute("""
-                    INSERT INTO detail_subcon
-                        (part_no, nama_part, nama_subcon, tipe_stok, jumlah_stok)
-                    VALUES (?,?,?,?,?)""",
-                    (p_no_sub.upper(), nama_part, sup_name, tipe, stok_akhir))
-                sub_count += 1
+                    for i in range(1, 32):
+                        val_t = to_num(r.get(f'Terima{i}', 0))
+                        val_k = to_num(r.get(f'Keluar{i}', 0))
+                        if val_t > 0:
+                            cursor.execute(
+                                "INSERT INTO histori_subcon VALUES(NULL,?,?,?,?,?,?)",
+                                (p_no_sub.upper(), nama_part, sup_name,
+                                 "Terima dari Pabrik", f"Hari ke-{i}", val_t))
+                        if val_k > 0:
+                            cursor.execute(
+                                "INSERT INTO histori_subcon VALUES(NULL,?,?,?,?,?,?)",
+                                (p_no_sub.upper(), nama_part, sup_name,
+                                 "Kirim ke Subcon", f"Hari ke-{i}", val_k))
 
-                # mutasi harian
-                for i in range(1, 32):
-                    val_t = to_num(r.get(f'Terima{i}', 0))
-                    val_k = to_num(r.get(f'Keluar{i}', 0))
-                    if val_t > 0:
+                st.sidebar.success(f"✅ Subcon: {sub_count} items")
+
+                # ══ C. MASUK SUBCON ══════════════════════════════════════════
+                masuk_count = 0
+                for _, r in df_masuk.iterrows():
+                    p_no = bersihkan(r.get('Part No.', ''))
+                    if not p_no: continue
+                    sup  = bersihkan(r.get('Nama Supplier', 'UNKNOWN'))
+                    nama = bersihkan(r.get('Nama Barang', ''))
+                    tgl  = bersihkan(r.get('Tgl SJ', '-'))
+                    qty  = to_num(r.get('Qty Masuk', 0))
+                    if qty > 0:
                         cursor.execute(
                             "INSERT INTO histori_subcon VALUES(NULL,?,?,?,?,?,?)",
-                            (p_no_sub.upper(), nama_part, sup_name,
-                             "Terima dari Pabrik", f"Hari ke-{i}", val_t))
-                    if val_k > 0:
+                            (p_no.upper(), nama, sup,
+                             "Barang MASUK dari Subcon", str(tgl), qty))
+                        masuk_count += 1
+                st.sidebar.success(f"✅ Masuk: {masuk_count} transaksi")
+
+                # ══ D. KELUAR SUBCON ═════════════════════════════════════════
+                keluar_count = 0
+                for _, r in df_keluar.iterrows():
+                    p_no = bersihkan(r.get('Part No.', ''))
+                    if not p_no: continue
+                    sup  = bersihkan(r.get('Nama Supplier', 'UNKNOWN'))
+                    nama = bersihkan(r.get('Nama Barang', ''))
+                    tgl  = bersihkan(r.get('Tgl', '-'))
+                    qty  = to_num(r.get('Qty', 0))
+                    if qty > 0:
                         cursor.execute(
                             "INSERT INTO histori_subcon VALUES(NULL,?,?,?,?,?,?)",
-                            (p_no_sub.upper(), nama_part, sup_name,
-                             "Kirim ke Subcon", f"Hari ke-{i}", val_k))
+                            (p_no.upper(), nama, sup,
+                             "Barang KELUAR ke Subcon", str(tgl), qty))
+                        keluar_count += 1
+                st.sidebar.success(f"✅ Keluar: {keluar_count} transaksi")
 
-            st.sidebar.success(f"✅ Subcon INV: {sub_count} baris")
+                conn.commit()
+                
+                # Success Animation
+                st.balloons()
+                st.sidebar.success("🎉 Sinkronisasi Selesai!", icon="✅")
 
-            # ══ C. MASUK SUBCON ══════════════════════════════════════════
-            # Kolom: Tgl SJ | Nama Supplier | Kategori | Nama Barang | Part No. | Qty Masuk
-            masuk_count = 0
-            for _, r in df_masuk.iterrows():
-                p_no = bersihkan(r.get('Part No.', ''))
-                if not p_no: continue
-                sup  = bersihkan(r.get('Nama Supplier', 'UNKNOWN'))
-                nama = bersihkan(r.get('Nama Barang', ''))
-                tgl  = bersihkan(r.get('Tgl SJ', '-'))
-                qty  = to_num(r.get('Qty Masuk', 0))
-                if qty > 0:
-                    cursor.execute(
-                        "INSERT INTO histori_subcon VALUES(NULL,?,?,?,?,?,?)",
-                        (p_no.upper(), nama, sup,
-                         "Barang MASUK dari Subcon", str(tgl), qty))
-                    masuk_count += 1
-            st.sidebar.success(f"✅ Masuk Subcon: {masuk_count} transaksi")
+            except Exception as e:
+                import traceback
+                st.sidebar.error(f"❌ Error: {str(e)}", icon="🚨")
+                with st.sidebar.expander("📋 Detail Error"):
+                    st.code(traceback.format_exc())
 
-            # ══ D. KELUAR SUBCON ═════════════════════════════════════════
-            # Kolom: Tgl | Nama Supplier | Kategori | Nama Barang | Part No. | Qty
-            keluar_count = 0
-            for _, r in df_keluar.iterrows():
-                p_no = bersihkan(r.get('Part No.', ''))
-                if not p_no: continue
-                sup  = bersihkan(r.get('Nama Supplier', 'UNKNOWN'))
-                nama = bersihkan(r.get('Nama Barang', ''))
-                tgl  = bersihkan(r.get('Tgl', '-'))
-                qty  = to_num(r.get('Qty', 0))
-                if qty > 0:
-                    cursor.execute(
-                        "INSERT INTO histori_subcon VALUES(NULL,?,?,?,?,?,?)",
-                        (p_no.upper(), nama, sup,
-                         "Barang KELUAR ke Subcon", str(tgl), qty))
-                    keluar_count += 1
-            st.sidebar.success(f"✅ Keluar Subcon: {keluar_count} transaksi")
-
-            conn.commit()
-            st.sidebar.success("🎉 Sinkronisasi selesai!")
-
-        except Exception as e:
-            import traceback
-            st.sidebar.error(f"❌ Error: {e}")
-            st.sidebar.code(traceback.format_exc())
+    # Sidebar Info
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("""
+        <div style="text-align: center; font-size: 12px; color: #666;">
+            <p>📊 Real-time Monitoring System</p>
+            <p>🔄 Last Sync: {}</p>
+        </div>
+    """.format(pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")), unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
-# 4. PENCARIAN
+# 4. PENCARIAN (Enhanced)
 # ─────────────────────────────────────────────
+st.markdown('<div class="search-box">', unsafe_allow_html=True)
 keyword = st.text_input(
-    "🔍 CARI BERDASARKAN NAMA PART ATAU NOMOR PART (Contoh: STAY MIRROR / 28STA):"
+    "🔍 CARI PART",
+    placeholder="Contoh: STAY MIRROR atau 28STA",
+    help="Masukkan nomor part atau nama part"
 ).upper().strip()
+st.markdown('</div>', unsafe_allow_html=True)
 
 if keyword:
-    df_hasil = pd.read_sql_query("""
-        SELECT DISTINCT part_no, nama_part FROM master_wh
-        WHERE (UPPER(part_no) LIKE ? OR UPPER(nama_part) LIKE ?)
-          AND UPPER(nama_part) NOT LIKE '%BENDING%'
-        UNION
-        SELECT DISTINCT part_no, nama_part FROM detail_subcon
-        WHERE (UPPER(part_no) LIKE ? OR UPPER(nama_part) LIKE ?)
-          AND UPPER(nama_part) NOT LIKE '%BENDING%'
-        ORDER BY part_no ASC
-    """, conn, params=(f"%{keyword}%",)*4)
+    with st.spinner("🔍 Mencari data..."):
+        df_hasil = pd.read_sql_query("""
+            SELECT DISTINCT part_no, nama_part FROM master_wh
+            WHERE (UPPER(part_no) LIKE ? OR UPPER(nama_part) LIKE ?)
+              AND UPPER(nama_part) NOT LIKE '%BENDING%'
+            UNION
+            SELECT DISTINCT part_no, nama_part FROM detail_subcon
+            WHERE (UPPER(part_no) LIKE ? OR UPPER(nama_part) LIKE ?)
+              AND UPPER(nama_part) NOT LIKE '%BENDING%'
+            ORDER BY part_no ASC
+        """, conn, params=(f"%{keyword}%",)*4)
 
-    if df_hasil.empty:
-        st.warning(f"Kata kunci '{keyword}' tidak ditemukan di database.")
-    else:
-        st.write("### 📌 Pilih Item Hasil Temuan:")
+        if df_hasil.empty:
+            st.warning(f"⚠️ '{keyword}' tidak ditemukan", icon="🔍")
+        else:
+            st.success(f"✅ Ditemukan {len(df_hasil)} item", icon="📦")
+            
+            for idx, row in df_hasil.iterrows():
+                part_no   = row['part_no']
+                nama_part = row['nama_part']
 
-        for _, row in df_hasil.iterrows():
-            part_no   = row['part_no']
-            nama_part = row['nama_part']
+                # Custom expander dengan styling
+                with st.expander(f"📦 {part_no} - {nama_part[:50]}", expanded=(idx==0)):
+                    
+                    # ── Stok WH ─────────────────────────────────────────
+                    res_wh = pd.read_sql_query(
+                        "SELECT SUM(stok_wh) as total FROM master_wh WHERE part_no=?",
+                        conn, params=(part_no,))
+                    stok_wh = res_wh.iloc[0]['total'] or 0
 
-            with st.expander(f"⚙️ [{part_no}] - {nama_part}"):
+                    st.markdown(f"""
+                    <div class="card-master">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                            <div>
+                                <span style="color:#FFCC00; font-weight:bold; font-size:16px;">
+                                    🏭 GUDANG UTAMA
+                                </span><br>
+                                <span style="color:#AAA; font-size:12px;">Part: <b>{part_no}</b></span>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="badge badge-info">Stock WH</span>
+                                <div style="font-size: 20px; font-weight: bold; color: #00D26A;">
+                                    {stok_wh:,.0f} Pcs
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-                # ── Stok WH ─────────────────────────────────────────
-                res_wh = pd.read_sql_query(
-                    "SELECT SUM(stok_wh) as total FROM master_wh WHERE part_no=?",
-                    conn, params=(part_no,))
-                stok_wh = res_wh.iloc[0]['total'] or 0
-
-                st.markdown(f"""
-                <div class="card-master">
-                  <span style="color:#FFCC00;font-weight:bold;font-size:17px;">
-                    🏭 GUDANG UTAMA MATERIAL (AFTER PROCESS)
-                  </span><br>
-                  <span style="color:#AAA;font-size:13px;">Nomor Part Kode: <b>{part_no}</b></span><br>
-                  <span style="font-size:15px;">
-                    Sisa Saldo Stock Akhir WH:
-                    <b style="color:#00D26A;">{stok_wh:,.2f} Pcs</b>
-                  </span>
-                </div>""", unsafe_allow_html=True)
-
-                # ── Data Subcon ──────────────────────────────────────
-                # Query: cocokkan exact part_no ATAU part_no subcon yang mirip
-                df_sub = pd.read_sql_query("""
-                    SELECT nama_subcon, tipe_stok, SUM(jumlah_stok) as stok,
-                           part_no, nama_part
-                    FROM detail_subcon
-                    WHERE UPPER(part_no) = ?
-                    GROUP BY nama_subcon, tipe_stok
-                    ORDER BY nama_subcon, tipe_stok
-                """, conn, params=(part_no,))
-
-                # Jika tidak ada, coba match by nama_part (2 kata pertama)
-                if df_sub.empty:
-                    kata2 = ' '.join(nama_part.split()[:2])
+                    # ── Data Subcon ──────────────────────────────────────
                     df_sub = pd.read_sql_query("""
                         SELECT nama_subcon, tipe_stok, SUM(jumlah_stok) as stok,
                                part_no, nama_part
                         FROM detail_subcon
-                        WHERE UPPER(nama_part) LIKE ?
+                        WHERE UPPER(part_no) = ?
                         GROUP BY nama_subcon, tipe_stok
                         ORDER BY nama_subcon, tipe_stok
-                    """, conn, params=(f"%{kata2}%",))
+                    """, conn, params=(part_no,))
 
-                if not df_sub.empty:
-                    suppliers = df_sub['nama_subcon'].unique()
+                    if df_sub.empty:
+                        kata2 = ' '.join(nama_part.split()[:2])
+                        df_sub = pd.read_sql_query("""
+                            SELECT nama_subcon, tipe_stok, SUM(jumlah_stok) as stok,
+                                   part_no, nama_part
+                            FROM detail_subcon
+                            WHERE UPPER(nama_part) LIKE ?
+                            GROUP BY nama_subcon, tipe_stok
+                            ORDER BY nama_subcon, tipe_stok
+                        """, conn, params=(f"%{kata2}%",))
 
-                    # ── Tabel ringkasan ──────────────────────────────
-                    rows_html = ""
-                    for sup in suppliers:
-                        df_s = df_sub[df_sub['nama_subcon'] == sup]
-                        reg   = df_s[df_s['tipe_stok'].str.lower().str.contains('regular', na=False)]['stok'].sum()
-                        klaim = df_s[df_s['tipe_stok'].str.lower().str.contains('klaim|claim', na=False)]['stok'].sum()
-                        total = reg + klaim
-                        cr = "#00D26A" if reg   > 0 else "#666"
-                        ck = "#FF4B4B" if klaim > 0 else "#666"
-                        ct = "#FFCC00" if total > 0 else "#666"
-                        rows_html += f"""
-                        <tr>
-                          <td style="text-align:left;font-weight:bold;">📍 {sup}</td>
-                          <td style="color:{cr};font-weight:bold;">{reg:,.0f}</td>
-                          <td style="color:{ck};font-weight:bold;">{klaim:,.0f}</td>
-                          <td style="color:{ct};font-weight:bold;">{total:,.0f}</td>
-                        </tr>"""
+                    if not df_sub.empty:
+                        st.markdown("""
+                            <div style="margin-top: 1rem;">
+                                <span style="color:#FFCC00; font-weight:bold; font-size:15px;">
+                                    🏢 DISTRIBUSI STOK SUBCON
+                                </span>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        
+                        suppliers = df_sub['nama_subcon'].unique()
+                        
+                        # Responsive Table
+                        rows_html = ""
+                        for sup in suppliers:
+                            df_s = df_sub[df_sub['nama_subcon'] == sup]
+                            reg   = df_s[df_s['tipe_stok'].str.lower().str.contains('regular', na=False)]['stok'].sum()
+                            klaim = df_s[df_s['tipe_stok'].str.lower().str.contains('klaim|claim', na=False)]['stok'].sum()
+                            total = reg + klaim
+                            
+                            rows_html += f"""
+                            <tr>
+                                <td style="text-align:left; font-weight:bold;">📍 {sup}</td>
+                                <td style="color:#00D26A; font-weight:bold;">{reg:,.0f}</td>
+                                <td style="color:#FF6B6B; font-weight:bold;">{klaim:,.0f}</td>
+                                <td style="color:#FFCC00; font-weight:bold;">{total:,.0f}</td>
+                            </tr>
+                            """
+                        
+                        st.markdown(f"""
+                        <div style="overflow-x: auto;">
+                            <table class="responsive-table">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align:left;">Supplier / Subcon</th>
+                                        <th>Regular</th>
+                                        <th>Klaim</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>{rows_html}</tbody>
+                            </table>
+                        </div>
+                        """, unsafe_allow_html=True)
 
-                    st.markdown(f"""
-                    <b style="color:#FFCC00;font-size:15px;">
-                      🏢 Distribusi Stok di Supplier Subcon:
-                    </b>
-                    <table class="supplier-table">
-                      <thead><tr>
-                        <th style="text-align:left;">Nama Supplier / Subcon</th>
-                        <th>Stok Regular (Pcs)</th>
-                        <th>Stok Klaim (Pcs)</th>
-                        <th>Total (Pcs)</th>
-                      </tr></thead>
-                      <tbody>{rows_html}</tbody>
-                    </table>
-                    """, unsafe_allow_html=True)
-
-                    # ── Detail + Histori per supplier (collapsible) ──────
-                    st.markdown("<br><b style='color:#AAA;'>📋 Klik Supplier untuk Lihat Detail & Histori:</b>",
-                                unsafe_allow_html=True)
-
-                    for sup in suppliers:
-                        df_s  = df_sub[df_sub['nama_subcon'] == sup]
-                        reg   = df_s[df_s['tipe_stok'].str.lower().str.contains('regular', na=False)]['stok'].sum()
-                        klaim = df_s[df_s['tipe_stok'].str.lower().str.contains('klaim|claim', na=False)]['stok'].sum()
-                        total = reg + klaim
-                        pno_s  = df_s.iloc[0]['part_no']
-                        nama_s = df_s.iloc[0]['nama_part']
-
-                        label_reg   = f"Regular: {reg:,.0f} Pcs"
-                        label_klaim = f"Klaim: {klaim:,.0f} Pcs"
-                        label_total = f"Total: {total:,.0f} Pcs"
-
-                        with st.expander(f"📍 {sup}   |   {label_reg}   |   {label_klaim}   |   {label_total}"):
-                            st.markdown(f"""
-                            <div style="background:#0d0d0d;border:1px solid #2a2a2a;padding:12px;border-radius:6px;margin-bottom:10px;">
-                              <span style="color:#AAA;font-size:12px;">
-                                Part No Subcon: <span style="color:#FFCC00;">{pno_s}</span>
-                                &nbsp;|&nbsp; {nama_s}
-                              </span><br><br>
-                              <span style="color:#00D26A;font-weight:bold;font-size:14px;">● Stok Regular : {reg:,.0f} Pcs</span>
-                              &nbsp;&nbsp;&nbsp;
-                              <span style="color:#FF4B4B;font-weight:bold;font-size:14px;">● Stok Klaim : {klaim:,.0f} Pcs</span>
-                            </div>""", unsafe_allow_html=True)
-
-                            df_hist = pd.read_sql_query("""
-                                SELECT jenis_transaksi, tanggal, qty
-                                FROM histori_subcon
-                                WHERE UPPER(part_no)=? AND nama_subcon=?
-                                ORDER BY tanggal ASC
-                            """, conn, params=(part_no, sup))
-
-                            if not df_hist.empty:
-                                hist_rows = ""
-                                for _, h in df_hist.iterrows():
-                                    # warna baris: hijau = masuk/terima, merah = keluar/kirim
-                                    jenis = str(h['jenis_transaksi'])
-                                    if 'MASUK' in jenis.upper() or 'TERIMA' in jenis.upper():
-                                        warna = "#00D26A"
-                                        ikon  = "⬇️"
-                                    else:
-                                        warna = "#FF6B6B"
-                                        ikon  = "⬆️"
-                                    hist_rows += (
-                                        f"<tr>"
-                                        f"<td>{ikon} {jenis}</td>"
-                                        f"<td>{h['tanggal']}</td>"
-                                        f"<td style='color:{warna};font-weight:bold;'>{h['qty']:,.0f}</td>"
-                                        f"</tr>"
-                                    )
-                                st.markdown(f"""
-                                <table class="hist-table">
-                                  <thead><tr>
-                                    <th>Aktivitas</th>
-                                    <th>Tanggal / Hari</th>
-                                    <th>Qty (Pcs)</th>
-                                  </tr></thead>
-                                  <tbody>{hist_rows}</tbody>
-                                </table>""", unsafe_allow_html=True)
-                            else:
-                                st.caption("Tidak ada histori mutasi untuk supplier ini.")
-                else:
-                    st.info("Item part ini murni berada di WH internal, tidak tersebar di supplier subcon.")
+                        # ── Detail per supplier ──────────────────────────────
+                        st.markdown("<br><b style='color:#AAA;'>📋 Detail & Histori Supplier:</b>", unsafe_allow_html=True)
+                        
+                        for sup in suppliers:
+                            df_s  = df_sub[df_sub['nama_subcon'] == sup]
+                            reg   = df_s[df_s['tipe_stok'].str.lower().str.contains('regular', na=False)]['stok'].sum()
+                            klaim = df_s[df_s['tipe_stok'].str.lower().str.contains('klaim|claim', na=False)]['stok'].sum()
+                            total = reg + klaim
+                            
+                            # Card collapsible untuk setiap supplier
+                            with st.expander(f"🏭 {sup}"):
+                                col1, col2, col3 = st.columns(3)
+                                with col1:
+                                    st.metric("📦 Stok Regular", f"{reg:,.0f} Pcs", delta=None)
+                                with col2:
+                                    st.metric("⚠️ Stok Klaim", f"{klaim:,.0f} Pcs", delta=None)
+                                with col3:
+                                    st.metric("📊 Total Stok", f"{total:,.0f} Pcs", delta=None)
+                                
+                                # Histori
+                                df_hist = pd.read_sql_query("""
+                                    SELECT jenis_transaksi, tanggal, qty
+                                    FROM histori_subcon
+                                    WHERE UPPER(part_no)=? AND nama_subcon=?
+                                    ORDER BY tanggal ASC
+                                """, conn, params=(part_no, sup))
+                                
+                                if not df_hist.empty:
+                                    st.markdown("**📜 Riwayat Transaksi:**")
+                                    for _, h in df_hist.iterrows():
+                                        jenis = str(h['jenis_transaksi'])
+                                        if 'MASUK' in jenis.upper() or 'TERIMA' in jenis.upper():
+                                            st.success(f"⬇️ {jenis} - {h['tanggal']}: {h['qty']:,.0f} Pcs")
+                                        else:
+                                            st.error(f"⬆️ {jenis} - {h['tanggal']}: {h['qty']:,.0f} Pcs")
+                                else:
+                                    st.info("Tidak ada histori mutasi")
+                    else:
+                        st.info("ℹ️ Item ini hanya tersedia di WH internal")
+                        
 else:
-    st.info("💡 Masukkan nama part atau nomor part untuk mulai monitoring.")
+    # Welcome Screen
+    st.markdown("""
+        <div style="text-align: center; padding: 3rem 1rem;">
+            <div style="font-size: 64px;">🔍</div>
+            <h3 style="color: #FFCC00;">Mulai Monitoring</h3>
+            <p style="color: #aaa;">Masukkan nomor part atau nama part di atas untuk melihat data stok</p>
+            <div class="badge badge-info">💡 Tips: Gunakan kata kunci seperti "28STA" atau "STAY MIRROR"</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Footer
+st.markdown("---")
+st.markdown("""
+    <div style="text-align: center; color: #666; font-size: 11px; padding: 1rem;">
+        <p>🏭 Monitoring Gudang & Subcon Logistics System v2.0</p>
+        <p>© 2024 - Real-time Inventory Tracking</p>
+    </div>
+""", unsafe_allow_html=True)
