@@ -356,9 +356,9 @@ with tab_cari:
         else:
             st.write(f"### 📌 Hasil Pencarian ({len(df_hasil)} item)")
 
-            for _, row in df_hasil.iterrows():
-                part_no   = row['part_no']
-                nama_part = row['nama_part']
+            for idx_hasil, row in enumerate(df_hasil.itertuples()):
+                part_no   = row.part_no
+                nama_part = row.nama_part
 
                 with st.expander(f"⚙️ [{part_no}] — {nama_part}"):
 
@@ -460,7 +460,7 @@ with tab_cari:
                             label="⬇️ Unduh Ringkasan Stok Part Ini (Excel)",
                             data=to_excel_bytes({"Ringkasan": df_export}),
                             file_name=f"ringkasan_{part_no}.xlsx",
-                            key=f"download_ringkasan_{part_no}",
+                            key=f"download_ringkasan_{idx_hasil}_{part_no}",
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                             use_container_width=True,
                         )
@@ -601,6 +601,7 @@ with tab_dash:
                 "⬇️ Unduh Daftar Stok Menipis/Kosong (Excel)",
                 data=to_excel_bytes({"Stok Menipis": df_alert_show}),
                 file_name="stok_menipis_kosong.xlsx",
+                key="download_stok_menipis",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 use_container_width=True,
             )
@@ -677,6 +678,7 @@ with tab_dash:
                     "Rekap Supplier": df_rekap_supplier,
                 }),
                 file_name="master_stok_gudang_subcon.xlsx",
+                key="download_master_gabungan",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 use_container_width=True,
             )
