@@ -460,6 +460,7 @@ with tab_cari:
                             label="⬇️ Unduh Ringkasan Stok Part Ini (Excel)",
                             data=to_excel_bytes({"Ringkasan": df_export}),
                             file_name=f"ringkasan_{part_no}.xlsx",
+                            key=f"download_ringkasan_{part_no}",
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                             use_container_width=True,
                         )
